@@ -1,56 +1,85 @@
-# PDF to Markdown Converter — Desktop App
+# PDF to Markdown Converter
 
-A simple desktop app that converts PDF files into clean Markdown. No terminal skills needed.
+**Convert PDFs to clean Markdown locally. Your files never leave your computer.**
 
-## What You Need
+Tax returns, medical records, legal documents — you shouldn't have to upload sensitive PDFs to some random website just to get usable text. This app runs 100% on your Mac. No cloud. No accounts. No data leaving your machine.
 
-- A Mac (Windows and Linux support coming soon)
-- About 5 minutes for the one-time setup
-- Your Mac password (for installing Java)
+## What It Does
 
-## How to Install (one time)
+- Converts any PDF to clean, structured Markdown
+- Handles tables, headings, multi-column layouts
+- Batch convert multiple files at once
+- Progress tracking with per-file status
+- Output saved next to your original files (or wherever you choose)
 
-1. Download or clone this repository
-2. Open the `desktop-app` folder
-3. Double-click **`install-mac.command`**
-4. If macOS says "can't be opened because it's from an unidentified developer":
-   - Go to **System Settings > Privacy & Security**
-   - Scroll down and click **Open Anyway**
-5. Enter your Mac password when prompted (needed for Java installation)
-6. Wait for the install to finish (~3-5 minutes)
-7. A **"PDF to Markdown"** shortcut will appear on your Desktop
+## Install (one time, ~5 minutes)
+
+Open **Terminal** (press `Cmd + Space`, type `Terminal`, hit Enter) and paste this:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/bhaveshlalwani/pdf-to-markdown-converter/main/install.sh | bash
+```
+
+Enter your Mac password when prompted (needed to install Java). When it's done, a **"PDF to Markdown"** shortcut appears on your Desktop. You can close Terminal — you won't need it again.
 
 ## How to Use
 
 1. Double-click **"PDF to Markdown"** on your Desktop
-2. Click **+ Add PDFs** to select your PDF files
-3. (Optional) Click **Change** to pick a different output folder — by default, Markdown files are saved next to your original PDFs
-4. Click **Convert All**
-5. Watch files move from the Queue to the Completed section
-6. When done, click the green status message to open the output folder
+2. Click **+ Add PDFs** to select files
+3. Click **Convert All**
+4. Click **Open Folder** to see your Markdown files
 
-## Where Are My Files?
+That's it. Your `.md` files are saved right next to your original PDFs.
 
-By default, the converted `.md` files are saved in the **same folder as your original PDFs**. If your PDFs come from different folders, they're saved to `~/Desktop/Markdown Outputs`.
+## Why This Exists
 
-You can change this anytime with the **Change** button before converting.
+I built this during tax season. I needed to convert tax documents (1040s, T1s, receipts) to text I could actually work with — but every online converter wants you to upload your files to their servers. For documents with your SSN, income, and bank details, that's a non-starter.
+
+This converter runs entirely on your computer using [OpenDataLoader PDF](https://github.com/opendataloader-project/opendataloader-pdf), an open-source PDF parsing engine. Nothing is uploaded anywhere.
+
+## Use Cases
+
+- **Tax preparation** — Convert tax forms to Markdown, paste into Claude/ChatGPT for help without uploading PDFs directly
+- **Legal documents** — Extract text from contracts and agreements locally
+- **Medical records** — Keep health information private while making it searchable
+- **Research papers** — Batch convert academic PDFs to Markdown for note-taking
+- **Any sensitive document** — If you wouldn't email it to a stranger, don't upload it to a converter website
+
+## Requirements
+
+- macOS (Windows and Linux support planned)
+- ~5 minutes for one-time setup
+- No technical knowledge needed
 
 ## Troubleshooting
-
-**"Can't be opened because it is from an unidentified developer"**
-Go to System Settings > Privacy & Security > click "Open Anyway"
 
 **App doesn't open / closes immediately**
 Open Terminal and run:
 ```
 ~/Desktop/PDF\ to\ Markdown.command
 ```
-This will show any error messages.
+This will show any error messages. Usually re-running the install command fixes it.
 
-**"java: command not found"**
-Re-run the installer (`install-mac.command`) — it will install Java.
+**Conversion is slow**
+The first conversion takes longer (~10-15s) because Java needs to start up. Subsequent files in the same batch are faster (~2-5s each).
+
+**Want to update to the latest version?**
+Just run the install command again — it will download the latest version without reinstalling dependencies.
+
+## How It Works
+
+```
+Your PDF → OpenDataLoader PDF (Java engine, runs locally) → Clean Markdown file
+```
+
+The app is a lightweight Python GUI that wraps [OpenDataLoader PDF](https://github.com/opendataloader-project/opendataloader-pdf), the #1 ranked open-source PDF parser. All processing happens on your machine via a local Java process. No API calls, no cloud services, no data transmission.
 
 ## Built With
 
-- [OpenDataLoader PDF](https://github.com/opendataloader-project/opendataloader-pdf) — PDF parsing engine
-- Python + tkinter — desktop GUI
+- [OpenDataLoader PDF](https://github.com/opendataloader-project/opendataloader-pdf) — Open-source PDF parsing engine (#1 in extraction benchmarks)
+- Python + tkinter — Cross-platform desktop GUI
+- Homebrew — Dependency management for macOS
+
+## License
+
+Apache 2.0 — same as the underlying OpenDataLoader PDF project.
