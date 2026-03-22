@@ -1,0 +1,3 @@
+opendataloader-pdf
+# tkmacosx is only needed on macOS (for colored buttons).
+# The install script handles this conditionally.
