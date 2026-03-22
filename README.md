@@ -17,10 +17,12 @@ Tax returns, medical records, legal documents — you shouldn't have to upload s
 Open **Terminal** (press `Cmd + Space`, type `Terminal`, hit Enter) and paste this:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/bhaveshlalwani/pdf-to-markdown-converter/main/install.sh | bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/bhaveshlalwani/pdf-to-markdown-converter/main/install.sh)"
 ```
 
-Enter your Mac password when prompted (needed to install Java). When it's done, a **"PDF to Markdown"** shortcut appears on your Desktop. You can close Terminal — you won't need it again.
+You may be asked for your Mac password (needed to install Java). If a popup appears asking to install "Command Line Tools", click **Install**. The whole setup takes about 5 minutes.
+
+When it's done, a **"PDF to Markdown"** shortcut appears on your Desktop. You can close Terminal — you won't need it again.
 
 ## How to Use
 
@@ -64,7 +66,7 @@ This will show any error messages. Usually re-running the install command fixes 
 The first conversion takes longer (~10-15s) because Java needs to start up. Subsequent files in the same batch are faster (~2-5s each).
 
 **Want to update to the latest version?**
-Just run the install command again — it will download the latest version without reinstalling dependencies.
+Run the install command again — it downloads the latest version without reinstalling dependencies.
 
 ## How It Works
 

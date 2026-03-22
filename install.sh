@@ -3,10 +3,10 @@
 # PDF to Markdown Converter — Installer
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/bhaveshlalwani/pdf-to-markdown-converter/main/install.sh | bash
+#   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/bhaveshlalwani/pdf-to-markdown-converter/main/install.sh)"
 #
 # What this does:
-#   1. Installs Homebrew, Java, Python (if needed)
+#   1. Installs Xcode CLT, Homebrew, Java, Python (if needed)
 #   2. Creates the converter app (~/.pdf-to-markdown/)
 #   3. Puts a "PDF to Markdown" shortcut on your Desktop
 # ============================================================
@@ -23,42 +23,61 @@ echo "=========================================="
 echo "  PDF to Markdown Converter — Installer"
 echo "=========================================="
 echo ""
+echo "  This will install everything you need."
+echo "  You may be asked for your Mac password."
+echo ""
 
-# --- 1. Homebrew ---
+# --- 1. Xcode Command Line Tools ---
+if ! xcode-select -p &>/dev/null; then
+    echo "[1/6] Installing Xcode Command Line Tools..."
+    echo "      A popup may appear — click 'Install' and wait."
+    xcode-select --install 2>/dev/null || true
+    # Wait for installation to complete
+    until xcode-select -p &>/dev/null; do
+        sleep 5
+    done
+    echo "      Done."
+else
+    echo "[1/6] Xcode Command Line Tools found."
+fi
+
+# --- 2. Homebrew ---
 if ! command -v brew &>/dev/null; then
-    echo "[1/5] Installing Homebrew (requires your Mac password)..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    echo "[2/6] Installing Homebrew..."
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    # Add brew to PATH for Apple Silicon
     if [ -f /opt/homebrew/bin/brew ]; then
         eval "$(/opt/homebrew/bin/brew shellenv)"
+        # Also add to shell profile so it persists
+        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zprofile" 2>/dev/null || true
     fi
 else
-    echo "[1/5] Homebrew found."
+    echo "[2/6] Homebrew found."
 fi
 
-# --- 2. Java ---
+# --- 3. Java ---
 if ! command -v java &>/dev/null; then
-    echo "[2/5] Installing Java (requires your Mac password)..."
+    echo "[3/6] Installing Java (may require your Mac password)..."
     brew install --cask temurin
 else
-    echo "[2/5] Java found."
+    echo "[3/6] Java found."
 fi
 
-# --- 3. Python 3.12 + tkinter ---
+# --- 4. Python 3.12 + tkinter ---
 if ! command -v python3.12 &>/dev/null; then
-    echo "[3/5] Installing Python 3.12..."
+    echo "[4/6] Installing Python 3.12..."
     brew install python@3.12
 else
-    echo "[3/5] Python 3.12 found."
+    echo "[4/6] Python 3.12 found."
 fi
 brew install python-tk@3.12 2>/dev/null || true
 
 PYTHON="$(command -v python3.12 || echo /opt/homebrew/bin/python3.12)"
 
-# --- 4. Download app + create venv ---
-echo "[4/5] Setting up the converter app..."
+# --- 5. Download app + create venv ---
+echo "[5/6] Setting up the converter app..."
 mkdir -p "$APP_DIR"
 
-# Download latest app.py from GitHub
 curl -fsSL "$APP_URL" -o "$APP_DIR/app.py"
 
 if [ ! -d "$VENV_DIR" ]; then
@@ -69,8 +88,8 @@ pip install --upgrade pip -q
 pip install opendataloader-pdf tkmacosx -q
 deactivate
 
-# --- 5. Create Desktop launcher ---
-echo "[5/5] Creating Desktop launcher..."
+# --- 6. Create Desktop launcher ---
+echo "[6/6] Creating Desktop launcher..."
 cat > "$LAUNCHER" << EOF
 #!/bin/bash
 cd "$APP_DIR"
