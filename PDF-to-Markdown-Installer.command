@@ -204,6 +204,32 @@ class App(tk.Tk):
                                           font=("Helvetica", 12), bg=SURFACE, fg=MUTED)
         self.queue_placeholder.place(relx=0.5, rely=0.5, anchor="center")
 
+        # --- Output Folder Section ---
+        out_header = tk.Frame(self, bg=BG)
+        out_header.pack(fill="x", padx=28, pady=(12, 0))
+        tk.Label(out_header, text="SAVE TO", font=("Helvetica", 11, "bold"),
+                 bg=BG, fg=MUTED).pack(side="left")
+
+        out_row = tk.Frame(self, bg=BG)
+        out_row.pack(fill="x", padx=28, pady=(4, 0))
+
+        out_display_border = tk.Frame(out_row, bg=BORDER)
+        out_display_border.pack(side="left", fill="x", expand=True)
+        self.output_dir_var = tk.StringVar(value="Same folder as input PDFs")
+        self.output_dir_label = tk.Label(out_display_border, textvariable=self.output_dir_var,
+                                         font=("Helvetica", 11), bg=SURFACE, fg=TEXT,
+                                         anchor="w", padx=10, pady=6)
+        self.output_dir_label.pack(fill="x", padx=1, pady=1)
+
+        self.choose_dir_btn = make_button(out_row, text="Choose...",
+                                           font=("Helvetica", 11, "bold"),
+                                           bg=SURFACE, fg=ACCENT,
+                                           activebackground=SURFACE_ALT,
+                                           activeforeground=ACCENT_HOVER,
+                                           borderless=True, padx=12, pady=6,
+                                           command=self.choose_output_dir)
+        self.choose_dir_btn.pack(side="right", padx=(8, 0))
+
         # --- Convert Button + Progress ---
         action_frame = tk.Frame(self, bg=BG)
         action_frame.pack(fill="x", padx=28, pady=(12, 0))
@@ -356,6 +382,18 @@ class App(tk.Tk):
         """Click the status label to open the last output folder."""
         if self.last_output_dir and self.last_output_dir.exists():
             open_folder(self.last_output_dir)
+
+    def choose_output_dir(self):
+        if self.is_converting:
+            return
+        folder = filedialog.askdirectory(title="Choose output folder")
+        if folder:
+            self.output_dir = Path(folder)
+            self.output_dir_var.set(short_path(self.output_dir))
+        else:
+            # User cancelled — reset to default
+            self.output_dir = None
+            self.output_dir_var.set("Same folder as input PDFs")
 
     def add_files(self):
         if self.is_converting:

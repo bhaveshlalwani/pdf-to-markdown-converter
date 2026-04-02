@@ -66,7 +66,7 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("PDF to Markdown Converter")
-        self.geometry("600x720")
+        self.geometry("600x800")
         self.configure(bg=BG)
         self.resizable(False, False)
 
@@ -142,6 +142,32 @@ class App(tk.Tk):
                                           font=("Helvetica", 12), bg=SURFACE, fg=MUTED)
         self.queue_placeholder.place(relx=0.5, rely=0.5, anchor="center")
 
+        # --- Output Folder Section ---
+        out_header = tk.Frame(self, bg=BG)
+        out_header.pack(fill="x", padx=28, pady=(12, 0))
+        tk.Label(out_header, text="SAVE TO", font=("Helvetica", 11, "bold"),
+                 bg=BG, fg=MUTED).pack(side="left")
+
+        out_row = tk.Frame(self, bg=BG)
+        out_row.pack(fill="x", padx=28, pady=(4, 0))
+
+        out_display_border = tk.Frame(out_row, bg=BORDER)
+        out_display_border.pack(side="left", fill="x", expand=True)
+        self.output_dir_var = tk.StringVar(value="Same folder as input PDFs")
+        self.output_dir_label = tk.Label(out_display_border, textvariable=self.output_dir_var,
+                                         font=("Helvetica", 11), bg=SURFACE, fg=TEXT,
+                                         anchor="w", padx=10, pady=6)
+        self.output_dir_label.pack(fill="x", padx=1, pady=1)
+
+        self.choose_dir_btn = make_button(out_row, text="Choose...",
+                                           font=("Helvetica", 11, "bold"),
+                                           bg=SURFACE, fg=ACCENT,
+                                           activebackground=SURFACE_ALT,
+                                           activeforeground=ACCENT_HOVER,
+                                           borderless=True, padx=12, pady=6,
+                                           command=self.choose_output_dir)
+        self.choose_dir_btn.pack(side="right", padx=(8, 0))
+
         # --- Convert Button + Progress ---
         action_frame = tk.Frame(self, bg=BG)
         action_frame.pack(fill="x", padx=28, pady=(12, 0))
@@ -176,6 +202,15 @@ class App(tk.Tk):
                                    bg=BG, fg=MUTED)
         self.done_count.pack(side="right")
 
+        self.open_folder_btn = make_button(d_header, text="Open Folder",
+                                           font=("Helvetica", 11, "bold"),
+                                           bg=GREEN, fg="#1a1a2e",
+                                           activebackground="#3abe70",
+                                           activeforeground="#1a1a2e",
+                                           borderless=True, padx=12, pady=4,
+                                           command=self._click_status)
+        # Hidden until conversion completes
+
         done_border = tk.Frame(self, bg=BORDER, bd=0)
         done_border.pack(fill="both", padx=28, pady=(4, 0), expand=True)
         self.done_frame_outer = tk.Frame(done_border, bg=SURFACE_ALT)
@@ -197,7 +232,7 @@ class App(tk.Tk):
                                          font=("Helvetica", 12), bg=SURFACE_ALT, fg=MUTED)
         self.done_placeholder.place(relx=0.5, rely=0.5, anchor="center")
 
-        # --- Status bar with Open Folder button ---
+        # --- Status bar ---
         status_frame = tk.Frame(self, bg=BG)
         status_frame.pack(fill="x", padx=28, pady=(8, 12))
 
@@ -206,16 +241,6 @@ class App(tk.Tk):
                                      font=("Helvetica", 11), bg=BG, fg=GREEN,
                                      anchor="w")
         self.status_label.pack(side="left", fill="x", expand=True)
-
-        self.open_folder_btn = make_button(status_frame, text="Open Folder",
-                                           font=("Helvetica", 11, "bold"),
-                                           bg=GREEN, fg="#1a1a2e",
-                                           activebackground="#3abe70",
-                                           activeforeground="#1a1a2e",
-                                           borderless=True, padx=12, pady=4,
-                                           command=self._click_status)
-        # Hidden until conversion completes
-        self.open_folder_btn.pack_forget()
 
     # --- File list rendering ---
 
@@ -294,6 +319,18 @@ class App(tk.Tk):
         """Click the status label to open the last output folder."""
         if self.last_output_dir and self.last_output_dir.exists():
             open_folder(self.last_output_dir)
+
+    def choose_output_dir(self):
+        if self.is_converting:
+            return
+        folder = filedialog.askdirectory(title="Choose output folder")
+        if folder:
+            self.output_dir = Path(folder)
+            self.output_dir_var.set(short_path(self.output_dir))
+        else:
+            # User cancelled — reset to default
+            self.output_dir = None
+            self.output_dir_var.set("Same folder as input PDFs")
 
     def add_files(self):
         if self.is_converting:
@@ -377,7 +414,7 @@ class App(tk.Tk):
         path_str = short_path(out_dir)
         self.status_var.set(f"Done! {success_count} file(s) saved to {path_str}")
         self.status_label.configure(fg=GREEN)
-        self.open_folder_btn.pack(side="right")
+        self.open_folder_btn.pack(side="right", padx=(8, 0))
 
         self.after(3000, self._hide_progress)
 
